@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verbal Quiz Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Verbal Quiz Generator</h1>
+    <p class="sub">Synonym, antonym &amp; analogy questions by grade.</p>
+
+    <form id="quiz-form">
+      <div class="row">
+        <label for="grade">Grade level</label>
+        <select id="grade" name="grade">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+
+      <fieldset>
+        <legend>Number of questions per type</legend>
+        <div class="row">
+          <label for="n_synonym">Synonym</label>
+          <input type="number" id="n_synonym" min="0" max="50" value="5">
+        </div>
+        <div class="row">
+          <label for="n_antonym">Antonym</label>
+          <input type="number" id="n_antonym" min="0" max="50" value="5">
+        </div>
+        <div class="row">
+          <label for="n_analogy">Analogy</label>
+          <input type="number" id="n_analogy" min="0" max="50" value="5">
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit">Generate quiz</button>
+        <button type="button" id="toggle-answers" class="secondary" hidden>Show answers</button>
+      </div>
+    </form>
+
+    <div id="status" class="status" role="status">Loading quiz data…</div>
+    <section id="quiz"></section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

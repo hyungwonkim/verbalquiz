@@ -1,0 +1,6 @@
+# Regenerable pipeline intermediates (rebuilt by build_mapping / build_analogies)
+data/static_vocab_source.json
+data/analogy_source.json
+
+__pycache__/
+*.pyc

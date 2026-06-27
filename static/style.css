@@ -1,0 +1,72 @@
+:root {
+  --fg: #1c2230;
+  --muted: #6b7280;
+  --accent: #3b5bdb;
+  --line: #e3e6ee;
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --good: #2f9e44;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+  line-height: 1.5;
+}
+main { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+h1 { margin: 0 0 .25rem; font-size: 1.6rem; }
+.sub { margin: 0 0 1.5rem; color: var(--muted); }
+
+form {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+fieldset { border: 1px solid var(--line); border-radius: 10px; margin: 1rem 0; padding: .5rem 1rem 1rem; }
+legend { color: var(--muted); font-size: .85rem; padding: 0 .4rem; }
+.row { display: flex; align-items: center; gap: .75rem; margin: .5rem 0; }
+.row label { width: 110px; font-weight: 600; }
+select, input[type=number] {
+  padding: .45rem .6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 90px;
+}
+.hint { color: var(--muted); font-size: .8rem; }
+
+.actions { display: flex; gap: .75rem; margin-top: .5rem; }
+button {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: .6rem 1.1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+button.secondary { background: #eef1fb; color: var(--accent); }
+button:hover { filter: brightness(1.05); }
+
+.status { margin: 1rem 0; color: var(--muted); min-height: 1.2em; }
+
+.group-title { margin: 1.75rem 0 .5rem; font-size: 1.15rem; border-bottom: 2px solid var(--line); padding-bottom: .25rem; }
+.note { color: var(--muted); font-style: italic; }
+
+.q {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: .9rem 1.1rem;
+  margin: .6rem 0;
+}
+.q .stem { font-weight: 700; letter-spacing: .02em; }
+.q .prompt { color: var(--muted); font-size: .9rem; }
+.choices { list-style: none; margin: .5rem 0 0; padding: 0; }
+.choices li { padding: .2rem 0; }
+.choices .key { display: inline-block; width: 1.6rem; color: var(--muted); font-weight: 600; }
+.reveal .choices li.correct { color: var(--good); font-weight: 700; }
+.reveal .choices li.correct .key { color: var(--good); }
