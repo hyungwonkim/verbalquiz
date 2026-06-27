@@ -118,8 +118,10 @@ function buildAnalogy(q) {
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
 const form = document.getElementById("quiz-form");
 const quizEl = document.getElementById("quiz");
+const answerKeyEl = document.getElementById("answer-key");
 const statusEl = document.getElementById("status");
 const toggleBtn = document.getElementById("toggle-answers");
+const printBtn = document.getElementById("print-quiz");
 
 const PROMPTS = {
   synonym: (w) => `Choose the word closest in meaning to ${w}:`,
@@ -176,6 +178,28 @@ function renderGroup(title, questions) {
   questions.forEach((q, i) => quizEl.appendChild(questionNode(q, i + 1)));
 }
 
+// Answer key (print-only via CSS) — one line per group: "1-C  2-A  3-D".
+function renderAnswerKey(groups) {
+  answerKeyEl.innerHTML = "";
+  if (!groups.some((g) => g.questions.length)) return;
+  const h = document.createElement("h2");
+  h.className = "group-title";
+  h.textContent = "Answer Key";
+  answerKeyEl.appendChild(h);
+  for (const g of groups) {
+    if (!g.questions.length) continue;
+    const p = document.createElement("p");
+    p.className = "ak-line";
+    const label = document.createElement("strong");
+    label.textContent = g.title + ": ";
+    p.appendChild(label);
+    p.appendChild(document.createTextNode(
+      g.questions.map((q, i) => `${i + 1}-${LETTERS[q.answer_index]}`).join(" ")
+    ));
+    answerKeyEl.appendChild(p);
+  }
+}
+
 // -- data load -------------------------------------------------------------
 async function loadData() {
   const [mapping, wordbank, analogies] = await Promise.all([
@@ -203,24 +227,33 @@ form.addEventListener("submit", async (e) => {
   const nAna = parseInt(document.getElementById("n_analogy").value, 10) || 0;
 
   quizEl.innerHTML = "";
+  answerKeyEl.innerHTML = "";
   quizEl.classList.remove("reveal");
   toggleBtn.hidden = true;
+  printBtn.hidden = true;
   toggleBtn.textContent = "Show answers";
 
   const synonym = nSyn ? synonymQuiz(nSyn, grade) : [];
   const antonym = nAnt ? antonymQuiz(nAnt, grade) : [];
   const analogy = nAna ? analogyQuiz(nAna, grade) : [];
 
-  if (nSyn) renderGroup("Synonyms", synonym);
-  if (nAnt) renderGroup("Antonyms", antonym);
-  if (nAna) renderGroup("Analogies", analogy);
+  const groups = [];
+  if (nSyn) groups.push({ title: "Synonyms", questions: synonym });
+  if (nAnt) groups.push({ title: "Antonyms", questions: antonym });
+  if (nAna) groups.push({ title: "Analogies", questions: analogy });
+
+  for (const g of groups) renderGroup(g.title, g.questions);
+  renderAnswerKey(groups);
 
   const totalServed = synonym.length + antonym.length + analogy.length;
   statusEl.textContent = totalServed
     ? `Generated ${totalServed} question(s) for grade ${grade}.`
     : "No questions generated — try a different grade or counts.";
   toggleBtn.hidden = totalServed === 0;
+  printBtn.hidden = totalServed === 0;
 });
+
+printBtn.addEventListener("click", () => window.print());
 
 toggleBtn.addEventListener("click", () => {
   const revealed = quizEl.classList.toggle("reveal");

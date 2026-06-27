@@ -70,3 +70,28 @@ button:hover { filter: brightness(1.05); }
 .choices .key { display: inline-block; width: 1.6rem; color: var(--muted); font-weight: 600; }
 .reveal .choices li.correct { color: var(--good); font-weight: 700; }
 .reveal .choices li.correct .key { color: var(--good); }
+
+/* answer key: screen-hidden, prints on its own page (see @media print) */
+#answer-key { display: none; }
+.ak-line { margin: .25rem 0; letter-spacing: .04em; }
+
+@media print {
+  body { background: #fff; color: #000; }
+  main { max-width: none; margin: 0; padding: 0; }
+  /* drop all the interactive chrome */
+  form, .actions, .sub, #status, #toggle-answers, #print-quiz { display: none !important; }
+  .group-title { border-bottom: 1px solid #000; break-after: avoid; }
+  .q {
+    border: 1px solid #999;
+    box-shadow: none;
+    break-inside: avoid;     /* keep a question on one page */
+    margin: .4rem 0;
+  }
+  /* never reveal inline answers on the printed worksheet — kids solve it.
+     correct choice must look identical to the others (even if "Show answers"
+     was toggled on screen before printing). */
+  .choices li.correct { color: #000 !important; font-weight: 400 !important; }
+  .choices li.correct .key { color: var(--muted) !important; font-weight: 600 !important; }
+  /* answer key: visible, starts on a fresh page so it can be torn off */
+  #answer-key { display: block; break-before: page; }
+}
