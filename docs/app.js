@@ -244,6 +244,8 @@ form.addEventListener("submit", async (e) => {
 
   for (const g of groups) renderGroup(g.title, g.questions);
   renderAnswerKey(groups);
+  lastGroups = groups;
+  lastGrade = grade;
 
   const totalServed = synonym.length + antonym.length + analogy.length;
   statusEl.textContent = totalServed
@@ -253,7 +255,87 @@ form.addEventListener("submit", async (e) => {
   printBtn.hidden = totalServed === 0;
 });
 
-printBtn.addEventListener("click", () => window.print());
+// -- print: open a self-contained worksheet in a new tab ------------------
+// window.print() on the live page is unreliable on mobile (esp. iOS Safari).
+// Instead we open a clean, standalone worksheet document the user can print or
+// save via the browser's native Share -> Print. It auto-prints on desktop and
+// carries its own Print button + answer key (own page) as a fallback.
+let lastGroups = [];
+let lastGrade = "";
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]
+  ));
+}
+
+function worksheetHTML(groups, grade) {
+  const promptFor = { synonym: PROMPTS.synonym, antonym: PROMPTS.antonym, analogy: PROMPTS.analogy };
+  let body = `<h1>Verbal Quiz — Grade ${esc(grade)}</h1>`;
+  for (const g of groups) {
+    if (!g.questions.length) continue;
+    body += `<h2>${esc(g.title)}</h2>`;
+    g.questions.forEach((q, i) => {
+      const prompt = promptFor[q.type] ? promptFor[q.type](q.stem) : "";
+      body += `<div class="q"><div class="stem">${i + 1}. ${esc(q.stem)}</div>`;
+      if (prompt) body += `<div class="prompt">${esc(prompt)}</div>`;
+      body += `<ul>` + q.choices.map((c, j) =>
+        `<li><span class="key">(${LETTERS[j]})</span> ${esc(c)}</li>`).join("") + `</ul></div>`;
+    });
+  }
+  // answer key on its own page
+  let key = `<div class="answer-key"><h2>Answer Key</h2>`;
+  for (const g of groups) {
+    if (!g.questions.length) continue;
+    const line = g.questions.map((q, i) => `${i + 1}-${LETTERS[q.answer_index]}`).join("  ");
+    key += `<p><strong>${esc(g.title)}:</strong> ${line}</p>`;
+  }
+  key += `</div>`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verbal Quiz — Grade ${esc(grade)}</title>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:#000; line-height:1.5; max-width:720px; margin:0 auto; padding:1rem 1.25rem 3rem; }
+  h1 { font-size:1.4rem; margin:0 0 1rem; }
+  h2 { font-size:1.15rem; border-bottom:1px solid #000; padding-bottom:.2rem; margin:1.5rem 0 .5rem; }
+  .q { border:1px solid #999; border-radius:8px; padding:.7rem .9rem; margin:.5rem 0; }
+  .stem { font-weight:700; letter-spacing:.02em; }
+  .prompt { color:#555; font-size:.9rem; }
+  ul { list-style:none; margin:.4rem 0 0; padding:0; }
+  li { padding:.15rem 0; }
+  .key { display:inline-block; width:1.6rem; color:#555; font-weight:600; }
+  .answer-key { break-before:page; page-break-before:always; margin-top:2rem; }
+  .answer-key p { letter-spacing:.05em; margin:.25rem 0; }
+  .toolbar { position:sticky; top:0; background:#fff; padding:.5rem 0 1rem; border-bottom:1px solid #ddd; margin-bottom:1rem; }
+  .toolbar button { font-size:1rem; padding:.55rem 1.1rem; border:0; border-radius:8px; background:#3b5bdb; color:#fff; cursor:pointer; }
+  .toolbar .hint { display:block; color:#555; font-size:.8rem; margin-top:.4rem; }
+  @media print { .toolbar { display:none; } body { padding:0; } }
+</style></head>
+<body>
+  <div class="toolbar">
+    <button onclick="window.print()">Print / Save as PDF</button>
+    <span class="hint">On a phone: tap the browser Share button, then Print.</span>
+  </div>
+  ${body}
+  ${key}
+  <script>window.addEventListener("load",function(){setTimeout(function(){try{window.print();}catch(e){}},300);});<\/script>
+</body></html>`;
+}
+
+printBtn.addEventListener("click", () => {
+  if (!lastGroups.some((g) => g.questions.length)) return;
+  const html = worksheetHTML(lastGroups, lastGrade);
+  const w = window.open("", "_blank");
+  if (w) {
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  } else {
+    // popup blocked -> fall back to printing the current page
+    window.print();
+  }
+});
 
 toggleBtn.addEventListener("click", () => {
   const revealed = quizEl.classList.toggle("reveal");
